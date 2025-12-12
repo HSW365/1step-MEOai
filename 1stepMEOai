@@ -1,0 +1,727 @@
+package.json In HSW365/1step-MEOai create this structure:
+
+1step-MEOai/
+├── app/
+│   ├── _layout.js
+│   ├── index.js          // Home / Dashboard
+│   ├── actions.js        // AI command & actions screen
+│   ├── tasks.js          // Tasks & automations list
+│   └── settings.js       // Settings & account
+├── components/
+│   ├── CommandInput.js
+│   └── TaskCard.js
+├── lib/
+│   └── ai.js             // MEOAI engine placeholder
+├── assets/
+│   └── .gitkeep          // empty file just to keep folder
+├── app.json
+├── babel.config.js
+├── package.json
+├── README.md             // you can replace your current one with this
+└── (you already have) .gitignore, LICENSE
+
+
+You can create folders in GitHub by typing names like app/_layout.js when you create a new file.
+
+2. ROOT CONFIG FILES
+package.json
+
+Create a new file named package.json in the root and paste:
+
+{
+  "name": "1step-meoai",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~52.0.0",
+    "expo-router": "~4.0.0",
+    "react": "18.2.0",
+    "react-native": "0.76.0",
+    "react-native-safe-area-context": "4.10.0",
+    "react-native-screens": "~4.8.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "babel-preset-expo": "~12.0.0"
+  }
+}
+
+
+Later, when you clone this to your PC, you will run: npm install to get node_modules.
+
+app.json
+{
+  "expo": {
+    "name": "1STEP MEOAI",
+    "slug": "1step-meoai",
+    "scheme": "1stepmeoai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
+
+
+If you don’t have those images yet, that’s OK for now. You can add them later or change the paths.
+
+babel.config.js
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: ['expo-router/babel'],
+  };
+};
+
+3. AI ENGINE (MEOAI PLACEHOLDER)
+
+Create folder lib, then file lib/ai.js:
+
+// lib/ai.js
+// Simple placeholder for your MEOAI engine.
+// Later you can connect this to OpenAI, your own API, etc.
+
+export async function runMEOAICommand(input) {
+  // Fake delay
+  await new Promise((resolve) => setTimeout(resolve, 600));
+
+  // Very simple mocked behavior for now
+  if (!input || input.trim().length === 0) {
+    return "Ask me something real. For example: 'Create my morning routine' or 'Generate content ideas for Hoodstar365'.";
+  }
+
+  const lower = input.toLowerCase();
+  if (lower.includes("routine")) {
+    return "Here’s a simple 1STEP morning routine:\n1. 5 minutes gratitude\n2. 10 minutes stretching\n3. 15 minutes focus work\n4. Check today’s top 3 tasks in the Tasks tab.";
+  }
+
+  if (lower.includes("content")) {
+    return "Content ideas for Hoodstar365:\n• 60-sec story about your cancer journey\n• Clip of studio session\n• Merch fit check with Survivor Museum tees\n• Quick money/credit game gem.";
+  }
+
+  return `MEOAI heard: "${input}".\n\nRight now I'm running in demo mode. Soon I'll be wired to real automations, APIs and workflows for your empire.`;
+}
+
+4. SHARED COMPONENTS
+components/CommandInput.js
+// components/CommandInput.js
+import React, { useState } from 'react';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+
+export default function CommandInput({ onSubmit, placeholder = "Type your 1STEP command..." }) {
+  const [value, setValue] = useState("");
+
+  const handleSend = () => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    onSubmit && onSubmit(trimmed);
+    setValue("");
+  };
+
+  return (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        value={value}
+        placeholder={placeholder}
+        placeholderTextColor="#777"
+        onChangeText={setValue}
+        onSubmitEditing={handleSend}
+        returnKeyType="send"
+      />
+      <TouchableOpacity style={styles.button} onPress={handleSend}>
+        <Text style={styles.buttonText}>GO</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: '#111',
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  input: {
+    flex: 1,
+    color: '#fff',
+    paddingVertical: 8,
+    paddingRight: 10,
+  },
+  button: {
+    backgroundColor: '#ffb300',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+  buttonText: {
+    color: '#000',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+});
+
+components/TaskCard.js
+// components/TaskCard.js
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+export default function TaskCard({ title, status = "planned", tag }) {
+  const statusColor =
+    status === "done" ? "#3ddc84" :
+    status === "running" ? "#ffb300" :
+    "#666";
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.row}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.status, { color: statusColor }]}>{status.toUpperCase()}</Text>
+      </View>
+      {tag && <Text style={styles.tag}>{tag}</Text>}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#111',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#222',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  title: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  status: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  tag: {
+    color: '#999',
+    fontSize: 12,
+    marginTop: 2,
+  },
+});
+
+5. EXPO ROUTER LAYOUT & SCREENS
+app/_layout.js
+
+This sets up the tab navigation (Dashboard / Actions / Tasks / Settings).
+
+// app/_layout.js
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+
+export default function RootLayout() {
+  return (
+    <>
+      <StatusBar style="light" />
+      <Tabs
+        screenOptions={{
+          headerStyle: { backgroundColor: '#000' },
+          headerTitleStyle: { color: '#fff', fontWeight: '700' },
+          headerTintColor: '#fff',
+          tabBarStyle: { backgroundColor: '#000', borderTopColor: '#111' },
+          tabBarActiveTintColor: '#ffb300',
+          tabBarInactiveTintColor: '#777',
+        }}
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Dashboard',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home-outline" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="actions"
+          options={{
+            title: 'Actions',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="flash-outline" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="tasks"
+          options={{
+            title: 'Tasks',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="list-outline" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="settings-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </>
+  );
+}
+
+
+Note: This uses @expo/vector-icons which comes with Expo by default.
+
+app/index.js – Dashboard / Home
+// app/index.js
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import TaskCard from '../components/TaskCard';
+
+export default function HomeScreen() {
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 18 }}>
+      <Text style={styles.logo}>1STEP · MEOAI</Text>
+      <Text style={styles.heading}>Command Center</Text>
+      <Text style={styles.sub}>
+        One command. One action. One step. 1STEP is your automation engine for life, brand, and business.
+      </Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Today’s Focus</Text>
+        <TaskCard
+          title="Plan 3 content pieces for Hoodstar365"
+          status="running"
+          tag="Content · Brand"
+        />
+        <TaskCard
+          title="Review Survivor Museum pre-orders"
+          status="planned"
+          tag="E-com · HSW365.co"
+        />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Automation Drafts</Text>
+        <TaskCard
+          title="Morning reset: prayer, journaling, 20-min build mode"
+          status="planned"
+          tag="Routine"
+        />
+        <TaskCard
+          title="Weekly money check-in: expenses, credit, investment moves"
+          status="planned"
+          tag="Wealth"
+        />
+      </View>
+
+      <Text style={styles.footer}>
+        Built for HSW365 — the journey continues.
+      </Text>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  logo: {
+    color: '#ffb300',
+    fontWeight: '700',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  heading: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  sub: {
+    color: '#aaa',
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 20,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+    marginBottom: 8,
+  },
+  footer: {
+    color: '#555',
+    fontSize: 11,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+});
+
+app/actions.js – AI Commands Screen
+// app/actions.js
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import CommandInput from '../components/CommandInput';
+import { runMEOAICommand } from '../lib/ai';
+
+export default function ActionsScreen() {
+  const [lastCommand, setLastCommand] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleCommand = async (input) => {
+    try {
+      setLoading(true);
+      setLastCommand(input);
+      const aiReply = await runMEOAICommand(input);
+      setResponse(aiReply);
+    } catch (e) {
+      setResponse("Something went wrong talking to MEOAI. Try again in a moment.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.wrapper}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ padding: 18, paddingBottom: 100 }}
+      >
+        <Text style={styles.heading}>Actions · 1STEP</Text>
+        <Text style={styles.sub}>
+          Type what you want done. MEOAI will translate it into steps, routines, or ideas.
+        </Text>
+
+        {lastCommand ? (
+          <View style={styles.block}>
+            <Text style={styles.label}>Last Command</Text>
+            <Text style={styles.command}>{lastCommand}</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.block}>
+          <Text style={styles.label}>MEOAI Response</Text>
+          {loading ? (
+            <ActivityIndicator color="#ffb300" />
+          ) : (
+            <Text style={styles.response}>
+              {response || "Ask me anything about your day, content, money moves, or systems."}
+            </Text>
+          )}
+        </View>
+      </ScrollView>
+
+      <View style={styles.inputBar}>
+        <CommandInput onSubmit={handleCommand} />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  container: {
+    flex: 1,
+  },
+  heading: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+  sub: {
+    color: '#aaa',
+    fontSize: 13,
+    marginBottom: 18,
+  },
+  block: {
+    marginBottom: 18,
+  },
+  label: {
+    color: '#777',
+    fontSize: 11,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  command: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  response: {
+    color: '#ddd',
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  inputBar: {
+    padding: 10,
+    backgroundColor: '#000',
+    borderTopColor: '#111',
+    borderTopWidth: 1,
+  },
+});
+
+app/tasks.js – Tasks & Automations
+// app/tasks.js
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import TaskCard from '../components/TaskCard';
+
+export default function TasksScreen() {
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 18 }}>
+      <Text style={styles.heading}>Tasks & Automations</Text>
+      <Text style={styles.sub}>
+        This is where 1STEP will keep track of the routines, automations, and flows you want MEOAI to run.
+      </Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Pinned</Text>
+        <TaskCard
+          title="Daily content idea from MEOAI at 10AM"
+          status="planned"
+          tag="Notification · Content"
+        />
+        <TaskCard
+          title="Weekly credit & money review every Sunday"
+          status="planned"
+          tag="Wealth · Finances"
+        />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Health & Mindset</Text>
+        <TaskCard
+          title="Morning prayer + gratitude script"
+          status="planned"
+          tag="Mindset · Faith"
+        />
+        <TaskCard
+          title="Evening wind-down reflection"
+          status="planned"
+          tag="Mental Health"
+        />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Brand & Business</Text>
+        <TaskCard
+          title="Check HSW365.co orders"
+          status="planned"
+          tag="E-com"
+        />
+        <TaskCard
+          title="Draft 3 emails to your list"
+          status="planned"
+          tag="HSW365 Media"
+        />
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  heading: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+  sub: {
+    color: '#aaa',
+    fontSize: 13,
+    marginBottom: 18,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+    marginBottom: 8,
+  },
+});
+
+app/settings.js – Settings Screen
+// app/settings.js
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+export default function SettingsScreen() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.heading}>Settings</Text>
+      <Text style={styles.sub}>
+        This is where you’ll later connect MEOAI keys, automation backends, accounts, and notifications.
+      </Text>
+
+      <View style={styles.block}>
+        <Text style={styles.label}>Profile</Text>
+        <Text style={styles.value}>Owner: HSW365 / Hoodstar365</Text>
+        <Text style={styles.value}>Brand: 1STEP · MEOAI</Text>
+      </View>
+
+      <View style={styles.block}>
+        <Text style={styles.label}>Connections (coming soon)</Text>
+        <Text style={styles.value}>• Email & calendar</Text>
+        <Text style={styles.value}>• Notion / Docs</Text>
+        <Text style={styles.value}>• HSW365.co / Shopify</Text>
+        <Text style={styles.value}>• Social / content schedulers</Text>
+      </View>
+
+      <Text style={styles.footer}>
+        Built for the Hoodstar365 ecosystem — apps, automations, and generational wealth systems.
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+    padding: 18,
+  },
+  heading: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  sub: {
+    color: '#aaa',
+    fontSize: 13,
+    marginBottom: 20,
+  },
+  block: {
+    marginBottom: 18,
+  },
+  label: {
+    color: '#777',
+    fontSize: 11,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  value: {
+    color: '#eee',
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  footer: {
+    color: '#555',
+    fontSize: 11,
+    marginTop: 20,
+  },
+});
+
+6. UPDATED README (REPLACE YOUR CURRENT ONE IF YOU WANT)
+# 1STEP · MEOAI — Automation Engine (Expo + Expo Router)
+
+1STEP is a next-generation mobile AI system designed to perform instant actions, automate complex workflows, and streamline everyday tasks with a single step.
+
+This repo contains the **1STEP / MEOAI MVP app**, built with **Expo** and **Expo Router**, ready to be extended into a full automation platform for life, brand, and business.
+
+---
+
+## Tech Stack
+
+- Expo (React Native)
+- Expo Router (tabs navigation)
+- React
+- React Native
+- Simple MEOAI engine placeholder (lib/ai.js)
+
+---
+
+## Screens
+
+- **Dashboard (Home)** — Command center overview
+- **Actions** — AI command input & response (MEOAI demo)
+- **Tasks** — Example automations and routines
+- **Settings** — Owner / brand info and future integrations
+
+---
+
+## Getting Started (Local Dev)
+
+Clone the repo:
+
+```bash
+git clone https://github.com/HSW365/1step-MEOai.git
+cd 1step-MEOai
+
+
+Install dependencies:
+
+npm install
+
+
+Run the app:
+
+npx expo start
