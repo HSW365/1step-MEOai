@@ -1,241 +1,50 @@
-# 1step-MEOai
-1STEP by MEOAI — A next-generation AI automation and productivity engine built with Expo Router. Instant actions, intelligent workflows, and real-time assistance designed to simplify life and business.
-const fs = require("fs");
-const path = require("path");
+# Welcome to your Expo app 👋
 
-function write(file, content) {
-  const dir = path.dirname(file);
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(file, content.trimStart(), "utf8");
-}
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-/* ---------------- ROOT FILES ---------------- */
+## Get started
 
-write("package.json", `
-{
-  "name": "1step-meoai",
-  "version": "1.0.0",
-  "private": true,
-  "main": "expo-router/entry",
-  "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
-  },
-  "dependencies": {
-    "expo": "~52.0.0",
-    "expo-router": "~4.0.17",
-    "expo-status-bar": "~2.0.0",
-    "react": "18.3.1",
-    "react-native": "0.76.3",
-    "@react-native-async-storage/async-storage": "1.23.1"
-  },
-  "devDependencies": {
-    "typescript": "^5.6.3"
-  }
-}
-`);
+1. Install dependencies
 
-write("app.json", `
-{
-  "expo": {
-    "name": "1STEP - MEOai",
-    "slug": "1step-meoai",
-    "plugins": ["expo-router"],
-    "jsEngine": "hermes"
-  }
-}
-`);
+   ```bash
+   npm install
+   ```
 
-write("babel.config.js", `
-module.exports = function (api) {
-  api.cache(true);
-  return {
-    presets: ["babel-preset-expo"],
-    plugins: ["expo-router/babel"]
-  };
-};
-`);
+2. Start the app
 
-write("tsconfig.json", `
-{
-  "extends": "expo/tsconfig.base",
-  "compilerOptions": {
-    "strict": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
-  }
-}
-`);
+   ```bash
+   npx expo start
+   ```
 
-/* ---------------- LIB ---------------- */
+In the output, you'll find options to open the app in a
 
-write("lib/ai.ts", `
-export function parseCommand(input: string) {
-  const t = input.toLowerCase().trim();
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-  if (t.startsWith("add task")) {
-    return { type: "CREATE_TASK", title: input.replace("add task", "").trim() };
-  }
-  if (t.startsWith("done")) {
-    return { type: "DONE", id: t.split(" ")[1] };
-  }
-  if (t.startsWith("delete")) {
-    return { type: "DELETE", id: t.split(" ")[1] };
-  }
-  if (t.startsWith("note")) {
-    return { type: "NOTE", text: input.replace("note", "").trim() };
-  }
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-  return { type: "UNKNOWN" };
-}
-`);
+## Get a fresh project
 
-write("lib/storage.ts", `
-import AsyncStorage from "@react-native-async-storage/async-storage";
+When you're ready, run:
 
-export const save = async (k: string, v: any) =>
-  AsyncStorage.setItem(k, JSON.stringify(v));
+```bash
+npm run reset-project
+```
 
-export const load = async (k: string, d: any) => {
-  const r = await AsyncStorage.getItem(k);
-  return r ? JSON.parse(r) : d;
-};
-`);
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-/* ---------------- COMPONENTS ---------------- */
+## Learn more
 
-write("components/CommandInput.tsx", `
-import { View, TextInput, Pressable, Text } from "react-native";
-import { useState } from "react";
+To learn more about developing your project with Expo, look at the following resources:
 
-export default function CommandInput({ onRun }) {
-  const [v, setV] = useState("");
-  return (
-    <View style={{ flexDirection: "row", gap: 8 }}>
-      <TextInput
-        value={v}
-        onChangeText={setV}
-        placeholder="Type command..."
-        style={{ flex: 1, borderWidth: 1, padding: 12, color: "white" }}
-        placeholderTextColor="#777"
-      />
-      <Pressable
-        onPress={() => {
-          onRun(v);
-          setV("");
-        }}
-        style={{ padding: 12, backgroundColor: "#222" }}
-      >
-        <Text style={{ color: "white" }}>Run</Text>
-      </Pressable>
-    </View>
-  );
-}
-`);
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-write("components/TaskCard.tsx", `
-import { View, Text, Pressable } from "react-native";
+## Join the community
 
-export default function TaskCard({ task, onDone, onDelete }) {
-  return (
-    <View style={{ padding: 12, borderWidth: 1, marginBottom: 8 }}>
-      <Text style={{ color: "white" }}>{task.title}</Text>
-      <View style={{ flexDirection: "row", gap: 10 }}>
-        <Pressable onPress={() => onDone(task.id)}>
-          <Text style={{ color: "green" }}>Done</Text>
-        </Pressable>
-        <Pressable onPress={() => onDelete(task.id)}>
-          <Text style={{ color: "red" }}>Delete</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-`);
+Join our community of developers creating universal apps.
 
-/* ---------------- APP ---------------- */
-
-write("app/_layout.tsx", `
-import { Stack } from "expo-router";
-
-export default function Layout() {
-  return <Stack />;
-}
-`);
-
-write("app/index.tsx", `
-import { View, Text, Pressable } from "react-native";
-import { Link } from "expo-router";
-
-export default function Home() {
-  return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 28, color: "white" }}>1STEP – MEOai</Text>
-      <Link href="/actions">
-        <Pressable><Text style={{ color: "cyan" }}>Actions</Text></Pressable>
-      </Link>
-      <Link href="/tasks">
-        <Pressable><Text style={{ color: "cyan" }}>Tasks</Text></Pressable>
-      </Link>
-    </View>
-  );
-}
-`);
-
-write("app/actions.tsx", `
-import { View, Text } from "react-native";
-import { useEffect, useState } from "react";
-import CommandInput from "../components/CommandInput";
-import TaskCard from "../components/TaskCard";
-import { parseCommand } from "../lib/ai";
-import { load, save } from "../lib/storage";
-
-export default function Actions() {
-  const [tasks, setTasks] = useState([]);
-
-  useEffect(() => {
-    load("tasks", []).then(setTasks);
-  }, []);
-
-  useEffect(() => {
-    save("tasks", tasks);
-  }, [tasks]);
-
-  function run(cmd) {
-    const a = parseCommand(cmd);
-    if (a.type === "CREATE_TASK") {
-      setTasks([{ id: Date.now().toString(), title: a.title }, ...tasks]);
-    }
-  }
-
-  return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <CommandInput onRun={run} />
-      {tasks.map(t => (
-        <TaskCard
-          key={t.id}
-          task={t}
-          onDone={() => {}}
-          onDelete={() => {}}
-        />
-      ))}
-    </View>
-  );
-}
-`);
-
-write("app/tasks.tsx", `
-import { View, Text } from "react-native";
-
-export default function Tasks() {
-  return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ color: "white" }}>Tasks Screen</Text>
-    </View>
-  );
-}
-`);
-
-console.log("✅ 1STEP – MEOai generated successfully");
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
