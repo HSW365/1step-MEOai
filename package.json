@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "export:web": "expo export --output-dir docs -p web --clear",
+    "verify-docs": "node ./scripts/verify-docs.js",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
