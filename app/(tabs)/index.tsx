@@ -1,14 +1,35 @@
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { useState } from "react";
 
 export default function HomeScreen() {
-  const runAutomation = () => {
+  const [loading, setLoading] = useState(false);
+
+  const runAutomation = async () => {
+    if (loading) return;
+    setLoading(true);
+    console.log("Run Automation triggered");
+
     const message =
       "Automation triggered.\n\n✔ Lead captured\n✔ Follow-up scheduled\n✔ Task logged\n\n(Backend connected next)";
 
-    if (Platform.OS === "web") {
-      window.alert("1STEP MEOai\n\n" + message);
-    } else {
-      Alert.alert("1STEP MEOai", message);
+    try {
+      // Simulate network / background work so user sees feedback
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      if (Platform.OS === "web") {
+        window.alert("1STEP MEOai\n\n" + message);
+      } else {
+        Alert.alert("1STEP MEOai", message);
+      }
+    } catch (e) {
+      console.error("Automation failed", e);
+      if (Platform.OS === "web") {
+        window.alert("1STEP MEOai\n\nAutomation failed. See console for details.");
+      } else {
+        Alert.alert("1STEP MEOai", "Automation failed. See logs for details.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -20,12 +41,22 @@ export default function HomeScreen() {
         AI-powered business automation platform
       </Text>
 
-      <Pressable style={styles.button} onPress={runAutomation}>
-        <Text style={styles.buttonText}>Run Automation</Text>
+      <Pressable
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={runAutomation}
+        disabled={loading}
+        accessibilityRole="button"
+        accessibilityState={{ busy: loading }}
+        accessibilityLabel="Run Automation"
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          {loading && <ActivityIndicator color="#fff" style={{ marginRight: 8 }} />}
+          <Text style={styles.buttonText}>{loading ? "Running…" : "Run Automation"}</Text>
+        </View>
       </Pressable>
     </View>
   );
-}
+} 
 
 const styles = StyleSheet.create({
   container: {
@@ -52,6 +83,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: "#fff",
