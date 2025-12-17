@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "export:web": "expo export --output-dir docs -p web --clear",
+    "export:web": "expo export --output-dir docs -p web --clear && node ./scripts/postexport-patch.js && npm run verify-docs",
     "verify-docs": "node ./scripts/verify-docs.js",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",

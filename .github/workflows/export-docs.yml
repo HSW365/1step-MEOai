@@ -20,11 +20,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Export web static site
-        run: npx expo export --output-dir docs -p web --clear
-
-      - name: Verify docs build
-        run: node ./scripts/verify-docs.js
+      - name: Export web static site and patch index
+        run: npm run export:web
 
       - name: Commit docs if changed
         run: |
