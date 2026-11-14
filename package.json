@@ -2,6 +2,7 @@
   "name": "1step-meoai",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "UNLICENSED",
   "scripts": {
     "start": "expo start",
     "export:web": "expo export --output-dir docs -p web --clear && node ./scripts/postexport-patch.js && npm run verify-docs",
