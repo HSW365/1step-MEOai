@@ -49,4 +49,30 @@ function run() {
   console.log('Injected fallback loader into', indexFile);
 }
 
+// HSW365 Owner PIN login: keep owner-login.js (public/) in the export and load it on every app page.
+// `expo export --clear` rebuilds docs/, so this re-adds the script tag after each export.
+const OWNER_TAG = '<script src="/1step-MEOai/owner-login.js?v=3" defer></script>';
+function htmlFiles(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
+    const p = path.join(dir, d.name);
+    if (d.isDirectory()) return d.name === '_expo' ? [] : htmlFiles(p);
+    return d.name.endsWith('.html') && d.name !== '_sitemap.html' ? [p] : [];
+  });
+}
+function injectOwnerLogin() {
+  const src = path.join(__dirname, '..', 'public', 'owner-login.js');
+  const dest = path.join(docsDir, 'owner-login.js');
+  if (fs.existsSync(src)) fs.copyFileSync(src, dest);
+  if (!fs.existsSync(dest)) { console.error('owner-login.js missing from public/'); process.exit(4); }
+  for (const file of htmlFiles(docsDir)) {
+    let html = fs.readFileSync(file, 'utf8');
+    html = html.replace(/<script src="[^"]*owner-login\.js[^"]*" defer><\/script>\n?/g, '');
+    if (html.indexOf('</body>') === -1) continue;
+    html = html.replace('</body>', OWNER_TAG + '\n</body>');
+    fs.writeFileSync(file, html, 'utf8');
+    console.log('Owner login on', path.relative(docsDir, file));
+  }
+}
+
 run();
+injectOwnerLogin();
